@@ -1,0 +1,30 @@
+# AI-DE Pair Backend - Core Dependencies
+# FastAPI and ASGI server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database connectivity
+databricks-sql-connector==3.0.2
+
+# HTTP and async processing
+aiohttp==3.9.1
+
+# Excel file processing
+openpyxl==3.1.2
+
+# File upload handling
+python-multipart==0.0.6
+
+# Real-time communication (SSE)
+sse-starlette==1.8.2
+
+# Validation and serialization
+pydantic==2.5.1
+pydantic-settings==2.1.0
+
+# Configuration management
+python-dotenv==1.0.0
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
