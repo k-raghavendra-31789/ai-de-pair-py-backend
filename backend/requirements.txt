@@ -3,6 +3,11 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 
+# Database and ORM
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+
 # Database connectivity
 databricks-sql-connector==3.0.2
 
@@ -24,6 +29,9 @@ pydantic-settings==2.1.0
 
 # Configuration management
 python-dotenv==1.0.0
+
+# UUID generation
+uuid==1.30
 
 # Development and testing
 pytest==7.4.3
