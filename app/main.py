@@ -20,13 +20,16 @@ import os
 # Import from our app structure
 from app.db.database import get_db, init_db
 from app.services.database_service import SessionService, AIMemoryCacheService
+from app.services.excel_processor import ExcelContentProcessor
 from app.schemas import (
     CreateSessionRequest, SessionResponse, APIStatusResponse, 
-    HealthCheckResponse, ErrorResponse
+    HealthCheckResponse, ErrorResponse, ExcelContentPayload,
+    ExcelProcessingResponse, ExcelProcessingStatus
 )
 from app.db.models import SessionStatus
 from datetime import datetime
 from typing import List
+from fastapi import BackgroundTasks
 
 # Configure logging
 logging.basicConfig(
@@ -272,6 +275,104 @@ async def generate_sql_sse():
 
 
 # ================================
+# PHASE 2: EXCEL CONTENT PROCESSING ENDPOINTS
+# ================================
+
+@app.post("/ai/excel/process", response_model=ExcelProcessingResponse)
+async def process_excel_content(
+    payload: ExcelContentPayload,
+    db: Session = Depends(get_db)
+) -> ExcelProcessingResponse:
+    """
+    Process Excel content received from frontend
+    
+    Phase 2 Implementation:
+    - Receive Excel data as JSON from frontend  
+    - Analyze content patterns and business logic
+    - Store processed content in database
+    - Queue background processing
+    - Return job ID for status tracking
+    """
+    try:
+        processor = ExcelContentProcessor(db)
+        result = await processor.process_excel_content(payload)
+        
+        logger.info(f"Excel content processing started for session {payload.session_id}")
+        return result
+        
+    except ValueError as e:
+        logger.error(f"Validation error in Excel processing: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error processing Excel content: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process Excel content")
+
+
+@app.get("/ai/excel/status/{job_id}", response_model=ExcelProcessingStatus)
+async def get_excel_processing_status(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> ExcelProcessingStatus:
+    """
+    Get the status of Excel content processing job
+    
+    Returns:
+    - Processing progress percentage
+    - Current processing step
+    - Any errors encountered
+    - Final results when completed
+    """
+    try:
+        processor = ExcelContentProcessor(db)
+        status = processor.get_processing_status(job_id)
+        
+        if not status:
+            raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+        
+        return status
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting processing status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get processing status")
+
+
+@app.get("/ai/sessions/{session_id}/excel")
+async def get_session_excel_data(
+    session_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get processed Excel data for a session
+    
+    Returns the complete analysis results from Phase 2 processing
+    including patterns detected, business logic found, and AI-ready content
+    """
+    try:
+        processor = ExcelContentProcessor(db)
+        excel_data = processor.get_session_excel_data(session_id)
+        
+        if not excel_data:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"No Excel data found for session {session_id}"
+            )
+        
+        return {
+            "session_id": session_id,
+            "excel_analysis": excel_data,
+            "status": "ready_for_discovery"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting session Excel data: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get Excel data")
+
+
+# ================================
 # SYSTEM STATUS ENDPOINTS
 # ================================
 
@@ -290,9 +391,9 @@ def api_status(db: Session = Depends(get_db)):
     
     return APIStatusResponse(
         implementation_status={
-            "phase_1_foundation": "✅ IMPLEMENTED - Database models, session management",
-            "phase_2_excel_processing": "📋 Planned",
-            "phase_3_information_discovery": "📋 Planned", 
+            "phase_1_foundation": "✅ IMPLEMENTED - Database models, session management", 
+            "phase_2_excel_processing": "✅ IMPLEMENTED - Excel content analysis and processing",
+            "phase_3_information_discovery": "📋 Planned",
             "phase_4_ai_analysis": "📋 Planned",
             "phase_5_strategic_clarification": "📋 Planned",
             "phase_6_sql_generation": "📋 Planned",
@@ -302,16 +403,15 @@ def api_status(db: Session = Depends(get_db)):
             "phase_10_documentation": "📋 Planned"
         },
         current_endpoints={
-            "working": ["/", "/health", "/run-sql", "/ai/sessions"],
+            "working": ["/", "/health", "/run-sql", "/ai/sessions", "/ai/excel/process"],
             "planned": [
-                "/ai/excel/upload",
                 "/ai/discover/information", 
                 "/ai/strategic/clarification",
                 "/ai/generate/sql",
                 "/ai/generate/sql/sse"
             ]
         },
-        next_implementation="Phase 2: Excel processing engine",
+        next_implementation="Phase 3: Information discovery system",
         database_initialized=database_initialized,
         total_sessions=total_sessions
     )

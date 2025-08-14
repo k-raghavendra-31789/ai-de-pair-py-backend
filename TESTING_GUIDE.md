@@ -9,6 +9,7 @@ Before merging `feat/p1-database-models` to `main`, verify all functionality wor
 ## 🚀 **Quick Start Testing**
 
 ### **1. Environment Setup**
+
 ```bash
 # Navigate to project directory
 cd /home/raghav/Desktop/ai-de-pair-backend
@@ -21,6 +22,7 @@ pip install -r requirements.txt
 ```
 
 ### **2. Start the Server**
+
 ```bash
 # Start FastAPI server
 python -m uvicorn app.main:app --reload --port 8000
@@ -32,6 +34,7 @@ python -m uvicorn app.main:app --reload --port 8000
 ```
 
 ### **3. Run Automated Test Suite**
+
 ```bash
 # In a new terminal (keep server running)
 cd /home/raghav/Desktop/ai-de-pair-backend
@@ -46,6 +49,7 @@ python test_api.py
 ## ✅ **Comprehensive Testing Scenarios**
 
 ### **Test 1: Server Health & Status**
+
 ```bash
 # Health check endpoint
 curl -X GET "http://127.0.0.1:8000/health"
@@ -61,6 +65,7 @@ curl -X GET "http://127.0.0.1:8000/api/status"
 ```
 
 ### **Test 2: Session Management**
+
 ```bash
 # Create new session
 curl -X POST "http://127.0.0.1:8000/ai/sessions" \
@@ -82,6 +87,7 @@ curl -X GET "http://127.0.0.1:8000/ai/sessions"
 ```
 
 ### **Test 3: Database Validation**
+
 ```bash
 # Check database file exists
 ls -la ai_de_pair.db
@@ -96,6 +102,7 @@ sqlite3 ai_de_pair.db "SELECT count(*) FROM analysis_sessions;"
 ```
 
 ### **Test 4: FastAPI Documentation**
+
 ```bash
 # Open browser to: http://127.0.0.1:8000/docs
 # Expected: Interactive Swagger UI with all endpoints
@@ -115,22 +122,26 @@ sqlite3 ai_de_pair.db "SELECT count(*) FROM analysis_sessions;"
 ### **✅ Must Pass Before Merge:**
 
 1. **Server Startup**
+
    - [ ] Server starts without errors
    - [ ] Database initialization successful
    - [ ] All 5 tables created (analysis_sessions, excel_documents, ai_interactions, sql_generations, ai_memory_cache)
 
 2. **API Endpoints**
+
    - [ ] All endpoints return proper HTTP status codes
    - [ ] JSON responses are well-formed
    - [ ] Pydantic validation working correctly
 
 3. **Database Operations**
+
    - [ ] Session creation works
    - [ ] Session retrieval works
    - [ ] Data persistence confirmed
    - [ ] UUID generation functioning
 
 4. **Automated Tests**
+
    - [ ] test_api.py runs successfully
    - [ ] 100% pass rate achieved
    - [ ] No errors or exceptions
@@ -145,11 +156,13 @@ sqlite3 ai_de_pair.db "SELECT count(*) FROM analysis_sessions;"
 ## 🚨 **Known Issues & Expected Behavior**
 
 ### **Expected "Failures" (Not Bugs):**
+
 - Health check shows "degraded" status - **NORMAL** (no AI provider configured yet)
 - Database status shows "disconnected" - **NORMAL** (SQLite file-based, always shows this)
 - Update session endpoint returns 404 - **EXPECTED** (not implemented in Phase 1)
 
 ### **Phase 1 Scope Limitations:**
+
 - No file upload functionality yet
 - No AI provider integration yet
 - No Excel processing yet
@@ -162,6 +175,7 @@ These are planned for future phases and are NOT bugs.
 ## 📊 **Expected Test Results**
 
 ### **Automated Test Suite (test_api.py):**
+
 ```
 📊 TEST RESULTS SUMMARY
 ====================================
@@ -182,6 +196,7 @@ Success Rate: 100.0%
 ```
 
 ### **Manual Testing Results:**
+
 - All endpoints return proper HTTP codes
 - JSON responses are valid
 - Database persistence working
@@ -192,6 +207,7 @@ Success Rate: 100.0%
 ## 🎯 **Pre-Merge Actions**
 
 ### **1. Final Testing**
+
 ```bash
 # Run complete test suite
 python test_api.py
@@ -202,12 +218,14 @@ curl -X GET "http://127.0.0.1:8000/api/status"
 ```
 
 ### **2. Documentation Check**
+
 - [ ] This testing guide complete
 - [ ] Code comments updated
 - [ ] README updated (if needed)
 - [ ] API documentation accessible
 
 ### **3. Git Preparation**
+
 ```bash
 # Ensure all changes committed
 git status
@@ -220,6 +238,7 @@ git push origin feat/p1-database-models
 ```
 
 ### **4. Ready for Merge**
+
 - [ ] All tests passing
 - [ ] Documentation complete
 - [ ] Feature branch pushed
@@ -230,6 +249,7 @@ git push origin feat/p1-database-models
 ## 🚀 **Post-Merge Next Steps**
 
 After successful merge to `main`:
+
 1. Create new branch for Phase 2: `feat/p2-excel-processing`
 2. Implement Excel file upload and processing
 3. Add information discovery functionality
@@ -240,6 +260,7 @@ After successful merge to `main`:
 ## 💡 **Quick Troubleshooting**
 
 ### **Server Won't Start:**
+
 ```bash
 # Check if port is in use
 lsof -i :8000
@@ -252,6 +273,7 @@ pip list | grep fastapi
 ```
 
 ### **Tests Failing:**
+
 ```bash
 # Check server is running
 curl -X GET "http://127.0.0.1:8000/"
@@ -261,6 +283,7 @@ which python
 ```
 
 ### **Database Issues:**
+
 ```bash
 # Check database file
 ls -la ai_de_pair.db

@@ -283,3 +283,76 @@ class ValidationErrorResponse(BaseModel):
     message: str
     field_errors: Dict[str, List[str]]
     timestamp: datetime = Field(default_factory=datetime.now)
+
+
+# ================================
+# PHASE 2: EXCEL CONTENT PROCESSING SCHEMAS
+# ================================
+
+class ExcelFileMetadata(BaseModel):
+    """Metadata about the Excel file"""
+    filename: str
+    upload_timestamp: datetime = Field(default_factory=datetime.now)
+    total_sheets: Optional[int] = None
+    file_size_mb: Optional[float] = None
+
+
+class ExcelSheetContent(BaseModel):
+    """Content from a single Excel sheet"""
+    sheet_name: str
+    sheet_index: Optional[int] = None
+    content: List[List[str]] = Field(..., description="2D array of cell values as strings")
+    
+    @validator('content')
+    def validate_content_structure(cls, v):
+        """Ensure content is properly structured"""
+        if not isinstance(v, list):
+            raise ValueError("Content must be a list")
+        for i, row in enumerate(v):
+            if not isinstance(row, list):
+                raise ValueError(f"Row {i} must be a list")
+        return v
+
+
+class ExcelContentPayload(BaseModel):
+    """Complete Excel content payload from frontend"""
+    session_id: str = Field(..., description="Analysis session ID")
+    file_metadata: ExcelFileMetadata
+    sheets: List[ExcelSheetContent] = Field(..., min_items=1, description="At least one sheet required")
+    
+    @validator('session_id')
+    def validate_session_id(cls, v):
+        """Validate session ID format"""
+        try:
+            uuid.UUID(v)
+        except ValueError:
+            raise ValueError("session_id must be a valid UUID")
+        return v
+
+
+class ExcelProcessingResponse(BaseModel):
+    """Response from Excel content processing"""
+    job_id: str = Field(..., description="Processing job identifier")
+    session_id: str
+    status: str = "processing"
+    message: str = "Excel content received and queued for processing"
+    estimated_completion_seconds: int = 30
+    sheets_received: int
+    total_content_size: int = Field(..., description="Total number of cells processed")
+
+
+class ExcelProcessingStatus(BaseModel):
+    """Status of Excel processing job"""
+    job_id: str
+    session_id: str
+    status: str = Field(..., description="processing, completed, failed")
+    progress_percentage: int = Field(default=0, ge=0, le=100)
+    current_step: Optional[str] = None
+    error_message: Optional[str] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    
+    # Processing results
+    patterns_detected: Optional[Dict[str, Any]] = None
+    business_logic_found: Optional[List[str]] = None
+    table_mappings_discovered: Optional[List[str]] = None
