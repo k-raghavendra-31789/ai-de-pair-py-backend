@@ -1,3 +1,29 @@
+# Database files (SQLite)
+*.db
+ai_de_pair.db
+
+# Server logs and process files
+*.log
+server.log
+final_test.log
+*.pid
+server.pid
+test_server.pid
+
+# Testing artifacts
+test_*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.production
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -348,8 +374,10 @@ metrics/
 dev_notes.md
 todo.md
 scratch.py
-test_*.py
 debug_*.py
+# Exclude temporary test files but allow essential test_api.py
+test_*.py
+!test_api.py
 
 # Production config backups
 config_backup/
