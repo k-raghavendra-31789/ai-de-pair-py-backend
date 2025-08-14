@@ -10,23 +10,21 @@ Retains /run-sql endpoint for frontend testing while building the new AI system.
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from databricks import sql
+# from databricks import sql  # Commented out for testing
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import logging
 import sys
 import os
 
-# Add backend directory to Python path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from database import get_db, init_db
-from database_service import SessionService, AIMemoryCacheService
-from schemas import (
+# Import from our app structure
+from app.db.database import get_db, init_db
+from app.services.database_service import SessionService, AIMemoryCacheService
+from app.schemas import (
     CreateSessionRequest, SessionResponse, APIStatusResponse, 
     HealthCheckResponse, ErrorResponse
 )
-from models import SessionStatus
+from app.db.models import SessionStatus
 from datetime import datetime
 from typing import List
 
